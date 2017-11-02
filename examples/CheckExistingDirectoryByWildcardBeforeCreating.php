@@ -7,12 +7,13 @@ use League\Flysystem\Filesystem;
 
 $codetms = '44-000002';
 $raisonSociale = 'Garage Champion';
+$destination = '/TMS/Clients/Parc';
 
-$result = getMatchingDirs($session, $codetms);
+$result = getMatchingDirs($session, $codetms, $destination);
 
 if (1 === count($result)) {
     $clientDir = $result[0]->getPropertyValueByQueryName('cmis:name');
-} elseif (count(0 === $result)) {
+} elseif (0 === count($result)) {
     $clientDir = $codetms.' '.$raisonSociale;
 } else {
     throw new Exception(sprintf('Ambiguité détectée: le code TMS %s est associé à plusieurs répertoires', $codetms));
@@ -31,13 +32,13 @@ var_dump($ret);
 /**
  * @param Dkd\PhpCmis\Session $session
  * @param string              $codetms
+ * @param string              $path
  *
  * @return mixed
  */
-function getMatchingDirs($session, $codetms)
+function getMatchingDirs($session, $codetms, $path)
 {
-    $destination = '/TMS/Clients/Parc';
-    $searchPath = 'cm:'.str_replace('/', '/cm:', trim($destination, '/'));
+    $searchPath = 'cm:'.str_replace('/', '/cm:', trim($path, '/'));
     $query = "SELECT * FROM cmis:folder WHERE cmis:name LIKE '$codetms%' AND CONTAINS('PATH:\"app:company_home/$searchPath/*\"')";
 
     return $session->query($query);

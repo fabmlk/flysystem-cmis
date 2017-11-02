@@ -26,7 +26,11 @@ $cmisAdapter = new CMISAdapter($session);
 $filesystem = new Filesystem($cmisAdapter);
 
 foreach ($clients as $client) {
-    $effectiveDir = str_replace(['{CodeTMS}', '{RaisonSociale}'], [$client['CodeTMS'], $client['RaisonSociale']], $path);
+    $effectiveDir = str_replace(
+        ['{CodeTMS}', '{RaisonSociale}'],
+        [$client['CodeTMS'], rtrim($client['RaisonSociale'], '.')],  // folders cannot end with a dot !
+        $path
+    );
     try {
         $ret = $filesystem->createDir($effectiveDir);
     } catch (Exception $e) {
