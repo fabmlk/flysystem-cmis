@@ -53,7 +53,7 @@ class CMISAdapter extends AbstractAdapter
      *
      * @var string
      */
-    const OPTION_AUTO_CREATE_PROPERTIES = 'cmis_auto_create_properties';
+    const OPTION_AUTO_CREATE_DIRECTORIES = 'cmis_auto_create_directories';
 
     /**
      * Map CMIS metadata names to flysystem metadata names.
@@ -546,7 +546,7 @@ class CMISAdapter extends AbstractAdapter
      */
     protected function ensureDirectory($path, array $properties, Config $config)
     {
-        if (false === $config->get(self::OPTION_AUTO_CREATE_PROPERTIES)) {
+        if (false === $config->get(self::OPTION_AUTO_CREATE_DIRECTORIES)) {
             return $this->session->getObjectByPath($path);
         }
 
