@@ -143,7 +143,12 @@ class CMISAdapter extends AbstractAdapter
      */
     public function has($path)
     {
-        return $this->getMetadata($path);
+        try {
+            return $this->getMetadata($path);
+        } catch (CmisObjectNotFoundException $e) {
+            //
+        }
+        return false;
     }
 
     /**
