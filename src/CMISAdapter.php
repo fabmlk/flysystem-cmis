@@ -5,12 +5,13 @@
 
 namespace Tms\Cmis\Flysystem;
 
-use Dkd\PhpCmis\Data\FileableCmisObjectInterface;
 use Dkd\PhpCmis\CmisObject\CmisObjectInterface;
+use Dkd\PhpCmis\Data\FileableCmisObjectInterface;
 use Dkd\PhpCmis\DataObjects\Document;
 use Dkd\PhpCmis\DataObjects\Folder;
 use Dkd\PhpCmis\DataObjects\PropertyDateTimeDefinition;
 use Dkd\PhpCmis\Enum\UnfileObject;
+use Dkd\PhpCmis\Exception\CmisBaseException;
 use Dkd\PhpCmis\Exception\CmisInvalidArgumentException;
 use Dkd\PhpCmis\Exception\CmisObjectNotFoundException;
 use Dkd\PhpCmis\Exception\CmisRuntimeException;
@@ -21,6 +22,7 @@ use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedCopyTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedTrait;
 use League\Flysystem\Config;
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\Util;
 
 /**
@@ -94,10 +96,6 @@ class CMISAdapter extends AbstractAdapter
      *
      * @return bool|string[]
      *
-     * @throws CmisObjectNotFoundException  in case parent directory does not exist
-     *                                      and cmis_auto_create_directories option is false
-     * @throws CmisRuntimeException
-     * @throws CmisInvalidArgumentException
      * @throws \LogicException
      */
     public function write($path, $contents, Config $config)
@@ -108,21 +106,23 @@ class CMISAdapter extends AbstractAdapter
         $properties = $config->get(self::OPTION_PROPERTIES) ?: [];
         $encoding = $config->get(self::OPTION_ENCODING) ?: 'UTF-8';
 
-        $parentFolder = $this->ensureDirectory($parentPath, $properties, $config);
-
-        $properties['cmis:name'] = $this->convertToLatin1($filename, $encoding);
-        if (!array_key_exists('cmis:objectTypeId', $properties)) {
-            $properties['cmis:objectTypeId'] = 'cmis:document';
-        }
-
         try {
+            $parentFolder = $this->ensureDirectory($parentPath, $properties, $config);
+
+            $properties['cmis:name'] = $this->convertToLatin1($filename, $encoding);
+            if (!array_key_exists('cmis:objectTypeId', $properties)) {
+                $properties['cmis:objectTypeId'] = 'cmis:document';
+            }
+
             $this->session->createDocument(
                 $properties,
                 $this->session->createObjectId($parentFolder->getId()),
                 GuzzleStream::factory($contents)
             );
-        } catch (\Exception $e) {
-            return false;
+        } catch (CmisObjectNotFoundException $e) {
+            throw new FileNotFoundException($parentPath);
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
 
         $result = compact('path', 'contents');
@@ -151,6 +151,8 @@ class CMISAdapter extends AbstractAdapter
      *
      * @param string $path
      *
+     * @throws \Exception
+     *
      * @return bool|string[]
      */
     public function getMetadata($path)
@@ -161,9 +163,13 @@ class CMISAdapter extends AbstractAdapter
             $object = $this->session->getObjectByPath($location);
 
             return $this->getObjectMetadata($object, $location);
-        } catch (\Exception $e) {
-            return false;
+        } catch (CmisObjectNotFoundException $e) {
+            throw new FileNotFoundException($path);
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
+
+        return false;
     }
 
     /**
@@ -190,8 +196,8 @@ class CMISAdapter extends AbstractAdapter
                     false
                 );
             }
-        } catch (\Exception $e) {
-            return false;
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
 
         $result = compact('path', 'contents');
@@ -242,8 +248,10 @@ class CMISAdapter extends AbstractAdapter
             $ret = $objectToRename->updateProperties(['cmis:name' => $nameNew]);
 
             return null !== $ret;
-        } catch (\Exception $e) {
-            // Would have returned false here, but would be redundant
+        } catch (CmisObjectNotFoundException $e) {
+            throw new FileNotFoundException($path);
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
 
         return false;
@@ -265,9 +273,13 @@ class CMISAdapter extends AbstractAdapter
             $this->session->delete($object, true);
 
             return true;
-        } catch (\Exception $e) {
-            return false;
+        } catch (CmisObjectNotFoundException $e) {
+            throw new FileNotFoundException($path);
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
+
+        return false;
     }
 
     /**
@@ -286,9 +298,11 @@ class CMISAdapter extends AbstractAdapter
             $object->deleteTree(true, new UnfileObject(UnfileObject::DELETE), true);
 
             return true;
-        } catch (\Exception $e) {
-            return false;
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
+
+        return false;
     }
 
     /**
@@ -298,11 +312,6 @@ class CMISAdapter extends AbstractAdapter
      * @param Config $config
      *
      * @return bool|string[]
-     *
-     * @throws CmisObjectNotFoundException  in case parent directory does not exist
-     *                                      and cmis_auto_create_directories is false
-     * @throws CmisInvalidArgumentException
-     * @throws CmisRuntimeException
      */
     public function createDir($path, Config $config)
     {
@@ -310,13 +319,14 @@ class CMISAdapter extends AbstractAdapter
         list($parentPath, $foldername) = array_values(Util::pathinfo($location));
 
         $properties = $config->get(self::OPTION_PROPERTIES) ?: [];
-        $parentFolder = $this->ensureDirectory($parentPath, $properties, $config);
 
         try {
-            // create specified folder
+            $parentFolder = $this->ensureDirectory($parentPath, $properties, $config);
             $this->createFolder($parentFolder, $foldername, $properties);
-        } catch (\Exception $e) {
-            return false;
+        } catch (CmisObjectNotFoundException $e) {
+            throw new FileNotFoundException($parentPath);
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
 
         return compact('path') + ['type' => 'dir'];
@@ -358,9 +368,13 @@ class CMISAdapter extends AbstractAdapter
                     static::$resultMap
                 )
             );
-        } catch (\Exception $e) {
-            return false;
+        } catch (CmisObjectNotFoundException $e) {
+            throw new FileNotFoundException($path);
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
+
+        return false;
     }
 
     /**
@@ -369,29 +383,32 @@ class CMISAdapter extends AbstractAdapter
      * @param string $directory path to the directory to list
      * @param bool   $recursive enables recursion
      *
-     * @throws CmisInvalidArgumentException
-     * @throws CmisObjectNotFoundException
-     * @throws CmisRuntimeException
-     *
      * @return array
      */
     public function listContents($directory = '', $recursive = false)
     {
         $location = $this->applyPathPrefix($directory);
-        $object = empty($location) ? $this->session->getRootFolder()
-            : $this->session->getObjectByPath($location);
-        $results = [];
 
-        if ($object instanceof Folder) {
-            $childrenList = $object->getChildren();
-            foreach ($childrenList as $childObject) {
-                $result = $this->getObjectMetadata($childObject, $location);
-                $results[] = $result;
+        try {
+            $object = empty($location) ? $this->session->getRootFolder()
+                : $this->session->getObjectByPath($location);
+            $results = [];
 
-                if ($recursive && 'dir' === $result['type']) {
-                    $results = array_merge($results, $this->listContents($result['path'], true));
+            if ($object instanceof Folder) {
+                $childrenList = $object->getChildren();
+                foreach ($childrenList as $childObject) {
+                    $result = $this->getObjectMetadata($childObject, $location);
+                    $results[] = $result;
+
+                    if ($recursive && 'dir' === $result['type']) {
+                        $results = array_merge($results, $this->listContents($result['path'], true));
+                    }
                 }
             }
+        } catch (CmisObjectNotFoundException $e) {
+            throw new FileNotFoundException($directory);
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
         }
 
         return $results;
@@ -439,15 +456,18 @@ class CMISAdapter extends AbstractAdapter
      * @param string $path     the object path
      * @param array  $metadata the metadata to set
      *
-     * @throws CmisInvalidArgumentException
-     * @throws CmisObjectNotFoundException
+     * @throws \Exception
      */
     public function updateMetadata($path, array $metadata)
     {
         $location = $this->applyPathPrefix($path);
 
-        $object = $this->session->getObjectByPath($location);
-        $object->updateProperties($metadata);
+        try {
+            $object = $this->session->getObjectByPath($location);
+            $object->updateProperties($metadata);
+        } catch (CmisBaseException $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     /**
