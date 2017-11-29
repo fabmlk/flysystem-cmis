@@ -145,9 +145,9 @@ class CMISAdapter extends AbstractAdapter
     {
         try {
             return $this->getMetadata($path);
-        } catch (CmisObjectNotFoundException $e) {
-            //
+        } catch (FileNotFoundException $e) {
         }
+
         return false;
     }
 
@@ -217,6 +217,8 @@ class CMISAdapter extends AbstractAdapter
     /**
      * {@inheritdoc}
      *
+     * This method supports renaming/moving folders too (you might need to bypass Flysystem/Filesystem to do that).
+     *
      * @param string $path
      * @param string $newpath
      *
@@ -229,32 +231,38 @@ class CMISAdapter extends AbstractAdapter
 
         $parentOriginal = Util::dirname($location);
         list($parentNew, $nameNew) = array_values(Util::pathinfo($newlocation));
+        $nameNew = $this->convertToLatin1($nameNew); // rename() does not take a Config object, conversion will be UTF-8
 
         try {
             $objectToRename = $this->session->getObjectByPath($location);
-
-            /* not just a rename ? move the object to another destination */
-            if ($parentOriginal !== $parentNew) {
-                if (!($objectToRename instanceof FileableCmisObjectInterface)) {
+            try {
+                // if destination is a folder, then we want to move
+                $destinationObject = $this->session->getObjectByPath(rtrim($newlocation, '/'));
+                if (!$destinationObject instanceof Folder || !($objectToRename instanceof FileableCmisObjectInterface)) {
+                    // some object exists already but not a folder ?!
                     return false;
                 }
+                $this->move($objectToRename, $destinationObject);
 
-                $objectToRenameParentId = $this->session->createObjectId($objectToRename->getParentId());
-                $destinationFolderObject = $this->session->getObjectByPath($parentNew);
-                $destinationFolderId = $this->session->createObjectId($destinationFolderObject->getId());
+                return true;
+            } catch (CmisObjectNotFoundException $e) {
+                // destination is not a folder. Don't they have the same parent ?
+                if ($parentOriginal !== $parentNew) {
+                    // then we also want to move
+                    if (!($objectToRename instanceof FileableCmisObjectInterface)) {
+                        return false;
+                    }
+                    $this->move($objectToRename, $this->session->getObjectByPath($parentNew));
+                }
 
-                $objectToRename = $objectToRename->move($objectToRenameParentId, $destinationFolderId);
+                /* now we can rename directly */
+                // 23/10/2017 dkd/php-cmis master branch:
+                // DO NOT USE AbstractCmisObject::rename(),
+                // it maps properties incorrectly !
+                return null !== $objectToRename->updateProperties(['cmis:name' => $nameNew]);
             }
-
-            /* now we can rename directly */
-            // 23/10/2017 dkd/php-cmis master branch:
-            // DO NOT USE AbstractCmisObject::rename(),
-            // it maps properties incorrectly !
-            $ret = $objectToRename->updateProperties(['cmis:name' => $nameNew]);
-
-            return null !== $ret;
         } catch (CmisObjectNotFoundException $e) {
-            throw new FileNotFoundException($path);
+            throw new FileNotFoundException(isset($objectToRename) ? $parentNew : $path);
         } catch (CmisBaseException $e) {
             throw new \Exception($e->getMessage());
         }
@@ -622,5 +630,23 @@ class CMISAdapter extends AbstractAdapter
         );
 
         return $this->session->getObject($folderId);
+    }
+
+    /**
+     * Move fileable object to destination folder.
+     *
+     * @param FileableCmisObjectInterface $objectToMove
+     * @param Folder                      $destinationFolderObject
+     */
+    protected function move(FileableCmisObjectInterface $objectToMove, Folder $destinationFolderObject)
+    {
+        if ($objectToMove instanceof Document) {
+            $objectToMoveParents = $objectToMove->getParents();
+            $objectToMoveParentId = $this->session->createObjectId($objectToMoveParents[0]->getId());
+        } else {
+            $objectToMoveParentId = $this->session->createObjectId($objectToMove->getParentId());
+        }
+        $destinationFolderId = $this->session->createObjectId($destinationFolderObject->getId());
+        $objectToMove->move($objectToMoveParentId, $destinationFolderId);
     }
 }

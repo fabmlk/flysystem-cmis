@@ -62,30 +62,7 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
     }
 
 
-    /**
-     * @param CmisBaseException $exceptionClass
-     *
-     * @dataProvider provideExceptionsForHasFail
-     */
-    public function testHasFailException(CmisBaseException $exceptionClass)
-    {
-        $sessionMock = $this->getSession();
-
-        $sessionMock->expects($this->once())
-            ->method('getObjectByPath')
-            ->willThrowException($exceptionClass);
-
-        if ($exceptionClass instanceof CmisObjectNotFoundException) {
-            $this->expectException('League\Flysystem\FileNotFoundException');
-        } else {
-            $this->expectException('\Exception');
-        }
-
-        $adapter = new CMISAdapter($sessionMock);
-        $adapter->has('something');
-    }
-
-    public function provideExceptionsForHasFail()
+    public function provideCmisExceptions()
     {
         return [
             [$this->createMock('Dkd\PhpCmis\Exception\CmisObjectNotFoundException')],
@@ -127,7 +104,7 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
     /**
      * @param CmisBaseException $exceptionClass
      *
-     * @dataProvider provideExceptionsForHasFail
+     * @dataProvider provideCmisExceptions
      * @expectedException \Exception
      */
     public function testWriteFailException(CmisBaseException $exceptionClass)
@@ -217,9 +194,15 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
         $sessionMock = $this->getSession();
         $cmisObject = $this->getCmisObject();
 
-        $sessionMock->expects($this->once())
+        $sessionMock->expects($this->exactly(2))
             ->method('getObjectByPath')
-            ->willReturn($cmisObject);
+            ->willReturnCallback(function ($path) use ($cmisObject) {
+                if ($path === 'bucketname/old') { // on first call we return a valid object to rename
+                    return $cmisObject;
+                } else { // on 2nd call, we will simulate destination does not exist
+                    throw new CmisObjectNotFoundException();
+                }
+            });
 
         $cmisObject->expects($this->once())
             ->method('updateProperties')
@@ -231,11 +214,42 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
     }
 
 
+    public function testRenameMove()
+    {
+        $sessionMock = $this->getSession();
+        $folderObjectMock1 = $this->getFolder();
+        $folderObjectMock2 = $this->getFolder();
+        $objectIdMock = $this->getObjectId();
+
+        $sessionMock->expects($this->exactly(2))
+            ->method('getObjectByPath')
+            ->willReturnMap([
+                ['bucketname/old', null, $folderObjectMock1],
+                ['bucketname/new', null, $folderObjectMock2]
+            ]);
+
+        $sessionMock->expects($this->exactly(2))
+            ->method('createObjectId')
+            ->willReturn($objectIdMock);
+
+        $folderObjectMock1->expects($this->never())
+            ->method('updateProperties');
+
+        $folderObjectMock1->expects($this->once())
+            ->method('move')
+            ->willReturn(null);
+
+        $adapter = new CMISAdapter($sessionMock, 'bucketname');
+        $result = $adapter->rename('old', 'new');
+        $this->assertTrue($result);
+    }
+
+
     public function testRenameFail()
     {
         $sessionMock = $this->getSession();
 
-        $sessionMock->expects($this->once())
+        $sessionMock->expects($this->exactly(2))
             ->method('getObjectByPath')
             ->willReturn(new StdClass);
 
@@ -248,7 +262,7 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
     /**
      * @param CmisBaseException $exceptionClass
      *
-     * @dataProvider provideExceptionsForHasFail
+     * @dataProvider provideCmisExceptions
      */
     public function testRenameFailException(CmisBaseException $exceptionClass)
     {
@@ -260,6 +274,7 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
 
         if ($exceptionClass instanceof CmisObjectNotFoundException) {
             $this->expectException('League\Flysystem\FileNotFoundException');
+            $this->expectExceptionMessage('File not found at path: old');
         } else {
             $this->expectException('\Exception');
         }
@@ -290,7 +305,7 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
     /**
      * @param CmisBaseException $exceptionClass
      *
-     * @dataProvider provideExceptionsForHasFail
+     * @dataProvider provideCmisExceptions
      * @expectedException \Exception
      */
     public function testDeleteDirFailException(CmisBaseException $exceptionClass)
@@ -370,7 +385,7 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
     /**
      * @param CmisBaseException $exceptionClass
      *
-     * @dataProvider provideExceptionsForHasFail
+     * @dataProvider provideCmisExceptions
      * @expectedException \Exception
      */
     public function testCreateDirFailException(CmisBaseException $exceptionClass)
@@ -394,7 +409,6 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
         $adapter = new CMISAdapter($sessionMock);
         $adapter->createDir('dirname', new Config());
     }
-
 
 
     public function testRead()
@@ -437,7 +451,6 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
     }
 
 
-
     public function testReadFail()
     {
         $sessionMock = $this->getSession();
@@ -468,7 +481,7 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
     /**
      * @param CmisBaseException $exceptionClass
      *
-     * @dataProvider provideExceptionsForHasFail
+     * @dataProvider provideCmisExceptions
      */
     public function testReadFailException(CmisBaseException $exceptionClass)
     {
