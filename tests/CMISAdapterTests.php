@@ -1,6 +1,7 @@
 <?php
 
 use Dkd\PhpCmis\Exception\CmisContentAlreadyExistsException;
+use Dkd\PhpCmis\Exception\CmisInvalidArgumentException;
 use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use Tms\Cmis\Flysystem\CMISAdapter;
@@ -302,14 +303,7 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
         $this->assertTrue($result);
     }
 
-
-    /**
-     * @param CmisBaseException $exceptionClass
-     *
-     * @dataProvider provideCmisExceptions
-     * @expectedException \Exception
-     */
-    public function testDeleteDirFailException(CmisBaseException $exceptionClass)
+    public function testDeleteDirFail()
     {
         $sessionMock = $this->getSession();
         $cmisObject = $this->getFolder();
@@ -320,7 +314,27 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
 
         $cmisObject->expects($this->once())
             ->method('deleteTree')
-            ->willThrowException($exceptionClass);
+            ->willThrowException(new CmisObjectNotFoundException());
+
+        $adapter = new CMISAdapter($sessionMock);
+        $this->assertFalse($adapter->deleteDir('some/dirname'));
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testDeleteDirFailException()
+    {
+        $sessionMock = $this->getSession();
+        $cmisObject = $this->getFolder();
+
+        $sessionMock->expects($this->once())
+            ->method('getObjectByPath')
+            ->willReturn($cmisObject);
+
+        $cmisObject->expects($this->once())
+            ->method('deleteTree')
+            ->willThrowException(new CmisInvalidArgumentException());
 
         $adapter = new CMISAdapter($sessionMock);
         $adapter->deleteDir('some/dirname');

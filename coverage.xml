@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1512037940">
-  <project timestamp="1512037940">
+<coverage generated="1512039656">
+  <project timestamp="1512039656">
     <package name="Tms\Cmis\Flysystem">
       <file name="/vagrant/src/flysystem-cmis/src/CMISAdapter.php">
         <class name="CMISAdapter" namespace="Tms\Cmis\Flysystem">
-          <metrics complexity="73" methods="22" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="186" coveredstatements="133" elements="208" coveredelements="138"/>
+          <metrics complexity="74" methods="22" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="188" coveredstatements="135" elements="210" coveredelements="140"/>
         </class>
         <line num="85" type="method" name="__construct" visibility="public" complexity="2" crap="2" count="24"/>
         <line num="87" type="stmt" count="24"/>
@@ -88,139 +88,141 @@
         <line num="291" type="stmt" count="0"/>
         <line num="292" type="stmt" count="0"/>
         <line num="293" type="stmt" count="0"/>
-        <line num="306" type="method" name="deleteDir" visibility="public" complexity="2" crap="2" count="3"/>
+        <line num="306" type="method" name="deleteDir" visibility="public" complexity="3" crap="3" count="3"/>
         <line num="308" type="stmt" count="3"/>
         <line num="311" type="stmt" count="3"/>
         <line num="312" type="stmt" count="3"/>
         <line num="314" type="stmt" count="1"/>
         <line num="315" type="stmt" count="2"/>
-        <line num="316" type="stmt" count="2"/>
-        <line num="330" type="method" name="createDir" visibility="public" complexity="5" crap="5" count="5"/>
-        <line num="332" type="stmt" count="5"/>
-        <line num="333" type="stmt" count="5"/>
+        <line num="316" type="stmt" count="1"/>
+        <line num="317" type="stmt" count="1"/>
+        <line num="318" type="stmt" count="1"/>
+        <line num="332" type="method" name="createDir" visibility="public" complexity="5" crap="5" count="5"/>
+        <line num="334" type="stmt" count="5"/>
         <line num="335" type="stmt" count="5"/>
-        <line num="338" type="stmt" count="5"/>
-        <line num="339" type="stmt" count="5"/>
-        <line num="340" type="stmt" count="3"/>
-        <line num="341" type="stmt" count="1"/>
-        <line num="342" type="stmt" count="2"/>
+        <line num="337" type="stmt" count="5"/>
+        <line num="340" type="stmt" count="5"/>
+        <line num="341" type="stmt" count="5"/>
+        <line num="342" type="stmt" count="3"/>
         <line num="343" type="stmt" count="1"/>
-        <line num="344" type="stmt" count="1"/>
+        <line num="344" type="stmt" count="2"/>
         <line num="345" type="stmt" count="1"/>
-        <line num="348" type="stmt" count="2"/>
-        <line num="358" type="method" name="read" visibility="public" complexity="4" crap="4" count="4"/>
-        <line num="360" type="stmt" count="4"/>
-        <line num="363" type="stmt" count="4"/>
-        <line num="364" type="stmt" count="2"/>
-        <line num="365" type="stmt" count="2"/>
-        <line num="368" type="stmt" count="2"/>
-        <line num="369" type="stmt" count="1"/>
-        <line num="372" type="stmt" count="1"/>
+        <line num="346" type="stmt" count="1"/>
+        <line num="347" type="stmt" count="1"/>
+        <line num="350" type="stmt" count="2"/>
+        <line num="360" type="method" name="read" visibility="public" complexity="4" crap="4" count="4"/>
+        <line num="362" type="stmt" count="4"/>
+        <line num="365" type="stmt" count="4"/>
+        <line num="366" type="stmt" count="2"/>
+        <line num="367" type="stmt" count="2"/>
+        <line num="370" type="stmt" count="2"/>
+        <line num="371" type="stmt" count="1"/>
         <line num="374" type="stmt" count="1"/>
-        <line num="375" type="stmt" count="1"/>
+        <line num="376" type="stmt" count="1"/>
         <line num="377" type="stmt" count="1"/>
         <line num="379" type="stmt" count="1"/>
-        <line num="380" type="stmt" count="1"/>
         <line num="381" type="stmt" count="1"/>
         <line num="382" type="stmt" count="1"/>
+        <line num="383" type="stmt" count="1"/>
         <line num="384" type="stmt" count="1"/>
-        <line num="387" type="stmt" count="2"/>
-        <line num="388" type="stmt" count="1"/>
-        <line num="389" type="stmt" count="1"/>
+        <line num="386" type="stmt" count="1"/>
+        <line num="389" type="stmt" count="2"/>
         <line num="390" type="stmt" count="1"/>
-        <line num="404" type="method" name="listContents" visibility="public" complexity="8" crap="72" count="0"/>
-        <line num="406" type="stmt" count="0"/>
-        <line num="409" type="stmt" count="0"/>
-        <line num="410" type="stmt" count="0"/>
+        <line num="391" type="stmt" count="1"/>
+        <line num="392" type="stmt" count="1"/>
+        <line num="406" type="method" name="listContents" visibility="public" complexity="8" crap="72" count="0"/>
+        <line num="408" type="stmt" count="0"/>
         <line num="411" type="stmt" count="0"/>
+        <line num="412" type="stmt" count="0"/>
         <line num="413" type="stmt" count="0"/>
-        <line num="414" type="stmt" count="0"/>
         <line num="415" type="stmt" count="0"/>
         <line num="416" type="stmt" count="0"/>
         <line num="417" type="stmt" count="0"/>
+        <line num="418" type="stmt" count="0"/>
         <line num="419" type="stmt" count="0"/>
-        <line num="420" type="stmt" count="0"/>
-        <line num="424" type="stmt" count="0"/>
-        <line num="425" type="stmt" count="0"/>
+        <line num="421" type="stmt" count="0"/>
+        <line num="422" type="stmt" count="0"/>
         <line num="426" type="stmt" count="0"/>
         <line num="427" type="stmt" count="0"/>
-        <line num="430" type="stmt" count="0"/>
-        <line num="440" type="method" name="getSize" visibility="public" complexity="1" crap="2" count="0"/>
-        <line num="442" type="stmt" count="0"/>
-        <line num="452" type="method" name="getMimetype" visibility="public" complexity="1" crap="2" count="0"/>
-        <line num="454" type="stmt" count="0"/>
-        <line num="464" type="method" name="getTimestamp" visibility="public" complexity="1" crap="2" count="0"/>
-        <line num="466" type="stmt" count="0"/>
-        <line num="477" type="method" name="updateMetadata" visibility="public" complexity="2" crap="2.15" count="1"/>
-        <line num="479" type="stmt" count="1"/>
-        <line num="482" type="stmt" count="1"/>
-        <line num="483" type="stmt" count="1"/>
-        <line num="484" type="stmt" count="0"/>
-        <line num="485" type="stmt" count="0"/>
-        <line num="487" type="stmt" count="1"/>
-        <line num="501" type="method" name="convertToLatin1" visibility="protected" complexity="1" crap="1" count="14"/>
-        <line num="503" type="stmt" count="14"/>
-        <line num="514" type="method" name="getObjectMetadata" visibility="protected" complexity="3" crap="3.03" count="1"/>
-        <line num="516" type="stmt" count="1"/>
-        <line num="517" type="stmt" count="1"/>
+        <line num="428" type="stmt" count="0"/>
+        <line num="429" type="stmt" count="0"/>
+        <line num="432" type="stmt" count="0"/>
+        <line num="442" type="method" name="getSize" visibility="public" complexity="1" crap="2" count="0"/>
+        <line num="444" type="stmt" count="0"/>
+        <line num="454" type="method" name="getMimetype" visibility="public" complexity="1" crap="2" count="0"/>
+        <line num="456" type="stmt" count="0"/>
+        <line num="466" type="method" name="getTimestamp" visibility="public" complexity="1" crap="2" count="0"/>
+        <line num="468" type="stmt" count="0"/>
+        <line num="479" type="method" name="updateMetadata" visibility="public" complexity="2" crap="2.15" count="1"/>
+        <line num="481" type="stmt" count="1"/>
+        <line num="484" type="stmt" count="1"/>
+        <line num="485" type="stmt" count="1"/>
+        <line num="486" type="stmt" count="0"/>
+        <line num="487" type="stmt" count="0"/>
+        <line num="489" type="stmt" count="1"/>
+        <line num="503" type="method" name="convertToLatin1" visibility="protected" complexity="1" crap="1" count="14"/>
+        <line num="505" type="stmt" count="14"/>
+        <line num="516" type="method" name="getObjectMetadata" visibility="protected" complexity="3" crap="3.03" count="1"/>
+        <line num="518" type="stmt" count="1"/>
         <line num="519" type="stmt" count="1"/>
-        <line num="520" type="stmt" count="1"/>
         <line num="521" type="stmt" count="1"/>
+        <line num="522" type="stmt" count="1"/>
         <line num="523" type="stmt" count="1"/>
-        <line num="525" type="stmt" count="0"/>
-        <line num="526" type="method" name="anonymousFunction:526#2554" complexity="1" crap="2" count="0"/>
+        <line num="525" type="stmt" count="1"/>
         <line num="527" type="stmt" count="0"/>
-        <line num="528" type="stmt" count="0"/>
+        <line num="528" type="method" name="anonymousFunction:528#2571" complexity="1" crap="2" count="0"/>
         <line num="529" type="stmt" count="0"/>
-        <line num="533" type="stmt" count="1"/>
-        <line num="534" type="stmt" count="1"/>
-        <line num="537" type="stmt" count="1"/>
-        <line num="548" type="method" name="normalizeObject" visibility="protected" complexity="5" crap="5.51" count="1"/>
-        <line num="550" type="stmt" count="1"/>
+        <line num="530" type="stmt" count="0"/>
+        <line num="531" type="stmt" count="0"/>
+        <line num="535" type="stmt" count="1"/>
+        <line num="536" type="stmt" count="1"/>
+        <line num="539" type="stmt" count="1"/>
+        <line num="550" type="method" name="normalizeObject" visibility="protected" complexity="5" crap="5.51" count="1"/>
         <line num="552" type="stmt" count="1"/>
-        <line num="553" type="stmt" count="0"/>
-        <line num="556" type="stmt" count="1"/>
-        <line num="557" type="stmt" count="1"/>
-        <line num="558" type="stmt" count="0"/>
+        <line num="554" type="stmt" count="1"/>
+        <line num="555" type="stmt" count="0"/>
+        <line num="558" type="stmt" count="1"/>
         <line num="559" type="stmt" count="1"/>
-        <line num="560" type="stmt" count="1"/>
-        <line num="562" type="stmt" count="0"/>
-        <line num="565" type="stmt" count="1"/>
+        <line num="560" type="stmt" count="0"/>
+        <line num="561" type="stmt" count="1"/>
+        <line num="562" type="stmt" count="1"/>
+        <line num="564" type="stmt" count="0"/>
         <line num="567" type="stmt" count="1"/>
-        <line num="583" type="method" name="ensureDirectory" visibility="protected" complexity="4" crap="4.01" count="9"/>
-        <line num="585" type="stmt" count="9"/>
-        <line num="586" type="stmt" count="0"/>
-        <line num="589" type="stmt" count="9"/>
-        <line num="590" type="stmt" count="9"/>
+        <line num="569" type="stmt" count="1"/>
+        <line num="585" type="method" name="ensureDirectory" visibility="protected" complexity="4" crap="4.01" count="9"/>
+        <line num="587" type="stmt" count="9"/>
+        <line num="588" type="stmt" count="0"/>
+        <line num="591" type="stmt" count="9"/>
         <line num="592" type="stmt" count="9"/>
-        <line num="593" type="stmt" count="9"/>
-        <line num="594" type="stmt" count="1"/>
+        <line num="594" type="stmt" count="9"/>
+        <line num="595" type="stmt" count="9"/>
         <line num="596" type="stmt" count="1"/>
-        <line num="597" type="stmt" count="1"/>
         <line num="598" type="stmt" count="1"/>
-        <line num="602" type="stmt" count="9"/>
-        <line num="617" type="method" name="createFolder" visibility="protected" complexity="3" crap="3.07" count="5"/>
-        <line num="619" type="stmt" count="5"/>
-        <line num="620" type="stmt" count="5"/>
-        <line num="621" type="stmt" count="0"/>
-        <line num="624" type="stmt" count="5"/>
+        <line num="599" type="stmt" count="1"/>
+        <line num="600" type="stmt" count="1"/>
+        <line num="604" type="stmt" count="9"/>
+        <line num="619" type="method" name="createFolder" visibility="protected" complexity="3" crap="3.07" count="5"/>
+        <line num="621" type="stmt" count="5"/>
+        <line num="622" type="stmt" count="5"/>
+        <line num="623" type="stmt" count="0"/>
         <line num="626" type="stmt" count="5"/>
-        <line num="627" type="stmt" count="5"/>
-        <line num="630" type="stmt" count="5"/>
-        <line num="631" type="stmt" count="0"/>
+        <line num="628" type="stmt" count="5"/>
+        <line num="629" type="stmt" count="5"/>
         <line num="632" type="stmt" count="5"/>
-        <line num="635" type="stmt" count="2"/>
-        <line num="644" type="method" name="move" visibility="protected" complexity="2" crap="2.09" count="1"/>
-        <line num="646" type="stmt" count="1"/>
-        <line num="647" type="stmt" count="0"/>
-        <line num="648" type="stmt" count="0"/>
-        <line num="650" type="stmt" count="1"/>
+        <line num="633" type="stmt" count="0"/>
+        <line num="634" type="stmt" count="5"/>
+        <line num="637" type="stmt" count="2"/>
+        <line num="646" type="method" name="move" visibility="protected" complexity="2" crap="2.09" count="1"/>
+        <line num="648" type="stmt" count="1"/>
+        <line num="649" type="stmt" count="0"/>
+        <line num="650" type="stmt" count="0"/>
         <line num="652" type="stmt" count="1"/>
-        <line num="653" type="stmt" count="1"/>
         <line num="654" type="stmt" count="1"/>
-        <metrics loc="655" ncloc="420" classes="1" methods="22" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="190" coveredstatements="136" elements="212" coveredelements="141"/>
+        <line num="655" type="stmt" count="1"/>
+        <line num="656" type="stmt" count="1"/>
+        <metrics loc="657" ncloc="422" classes="1" methods="22" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="192" coveredstatements="138" elements="214" coveredelements="143"/>
       </file>
     </package>
-    <metrics files="1" loc="655" ncloc="420" classes="1" methods="22" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="190" coveredstatements="136" elements="212" coveredelements="141"/>
+    <metrics files="1" loc="657" ncloc="422" classes="1" methods="22" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="192" coveredstatements="138" elements="214" coveredelements="143"/>
   </project>
 </coverage>

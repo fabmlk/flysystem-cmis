@@ -312,6 +312,8 @@ class CMISAdapter extends AbstractAdapter
             $object->deleteTree(true, new UnfileObject(UnfileObject::DELETE), true);
 
             return true;
+        } catch (CmisObjectNotFoundException $e) {
+            return false;
         } catch (CmisBaseException $e) {
             throw new \Exception($e->getMessage());
         }
