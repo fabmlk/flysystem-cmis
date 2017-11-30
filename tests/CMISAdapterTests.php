@@ -1,5 +1,6 @@
 <?php
 
+use Dkd\PhpCmis\Exception\CmisContentAlreadyExistsException;
 use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use Tms\Cmis\Flysystem\CMISAdapter;
@@ -380,6 +381,28 @@ class CMISAdapterTests extends PHPUnit\Framework\TestCase
         $adapter = new CMISAdapter($sessionMock);
         $result = $adapter->createDir('dirname2/subdirname', new Config());
         $this->assertInternalType('array', $result);
+    }
+
+    public function testCreateDirFail()
+    {
+        $sessionMock = $this->getSession();
+        $folderObjectMock = $this->getFolder();
+        $objectIdMock = $this->getObjectId();
+
+        $sessionMock->expects($this->once())
+            ->method('getRootFolder')
+            ->willReturn($folderObjectMock);
+
+        $sessionMock->expects($this->once())
+            ->method('createFolder')
+            ->willThrowException(new CmisContentAlreadyExistsException());
+
+        $sessionMock->expects($this->once())
+            ->method('createObjectId')
+            ->willReturn($objectIdMock);
+
+        $adapter = new CMISAdapter($sessionMock);
+        $this->assertFalse($adapter->createDir('dirname', new Config()));
     }
 
     /**

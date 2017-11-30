@@ -12,6 +12,7 @@ use Dkd\PhpCmis\DataObjects\Folder;
 use Dkd\PhpCmis\DataObjects\PropertyDateTimeDefinition;
 use Dkd\PhpCmis\Enum\UnfileObject;
 use Dkd\PhpCmis\Exception\CmisBaseException;
+use Dkd\PhpCmis\Exception\CmisContentAlreadyExistsException;
 use Dkd\PhpCmis\Exception\CmisInvalidArgumentException;
 use Dkd\PhpCmis\Exception\CmisObjectNotFoundException;
 use Dkd\PhpCmis\Exception\CmisRuntimeException;
@@ -336,6 +337,8 @@ class CMISAdapter extends AbstractAdapter
         try {
             $parentFolder = $this->ensureDirectory($parentPath, $properties, $config);
             $this->createFolder($parentFolder, $foldername, $properties);
+        } catch (CmisContentAlreadyExistsException $e) {
+            return false;
         } catch (CmisObjectNotFoundException $e) {
             throw new FileNotFoundException($parentPath);
         } catch (CmisBaseException $e) {
