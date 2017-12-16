@@ -8,10 +8,13 @@
       "email": "fabien.lanoux@tms-misiv.fr"
     }
   ],
+  "repositories": [
+    { "type": "vcs", "url": "https://github.com/fabmlk/php-cmis-client.git" }
+  ],
   "require": {
     "php": ">=5.4.0",
     "league/flysystem": "^1.0",
-    "dkd/php-cmis": "dev-master",
+    "dkd/php-cmis": "dev-paging",
     "league/flysystem-replicate-adapter": "^1.0",
     "litipk/flysystem-fallback-adapter": "^0.1.2"
   },

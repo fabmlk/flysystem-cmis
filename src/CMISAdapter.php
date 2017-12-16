@@ -9,7 +9,6 @@ use Dkd\PhpCmis\CmisObject\CmisObjectInterface;
 use Dkd\PhpCmis\Data\FileableCmisObjectInterface;
 use Dkd\PhpCmis\DataObjects\Document;
 use Dkd\PhpCmis\DataObjects\Folder;
-use Dkd\PhpCmis\DataObjects\PropertyDateTimeDefinition;
 use Dkd\PhpCmis\Enum\UnfileObject;
 use Dkd\PhpCmis\Exception\CmisBaseException;
 use Dkd\PhpCmis\Exception\CmisContentAlreadyExistsException;
@@ -37,15 +36,21 @@ class CMISAdapter extends AbstractAdapter
     use StreamedCopyTrait;
     use NotSupportingVisibilityTrait;
 
+    use CommonsTrait;
+
     /**
      * Key option for file name and dir name encoding.
+     * Expects: string supported by $in_charset parameter of iconv()
+     * Default: 'UTF-8'.
      *
      * @var string
      */
     const OPTION_ENCODING = 'cmis_encoding';
 
     /**
-     * Key option for CMIS properties.
+     * Key option for CMIS properties to use when creating new Folder or Document.
+     * Expects: associative array of CMIS properties => values.
+     * Default: [] (minimum required properties are handled internally).
      *
      * @var string
      */
@@ -53,21 +58,12 @@ class CMISAdapter extends AbstractAdapter
 
     /**
      * Key option for auto creation of missing directories in path.
+     * Expects: boolean true to create missing directories in path, false not to create missing directories in path
+     * Default: true.
      *
      * @var string
      */
     const OPTION_AUTO_CREATE_DIRECTORIES = 'cmis_auto_create_directories';
-
-    /**
-     * Map CMIS metadata names to flysystem metadata names.
-     *
-     * @var array
-     */
-    protected static $resultMap = [
-        'cmis:contentStreamLength' => 'size',
-        'cmis:contentStreamMimeType' => 'mimetype',
-        'cmis:lastModificationDate' => 'timestamp',
-    ];
 
     /**
      * A dkd/php-cmis session.
@@ -232,7 +228,7 @@ class CMISAdapter extends AbstractAdapter
 
         $parentOriginal = Util::dirname($location);
         list($parentNew, $nameNew) = array_values(Util::pathinfo($newlocation));
-        $nameNew = $this->convertToLatin1($nameNew); // rename() does not take a Config object, conversion will be UTF-8
+        $nameNew = $this->convertToLatin1($nameNew); // rename() does not take a Config object, conversion will be Latin1
 
         try {
             $objectToRename = $this->session->getObjectByPath($location);
@@ -489,6 +485,17 @@ class CMISAdapter extends AbstractAdapter
     }
 
     /**
+     * This does not belong to the Flysystem Adapter interface
+     * but we need it for custom plugins.
+     *
+     * @return Session
+     */
+    public function getSession()
+    {
+        return $this->session;
+    }
+
+    /**
      * Convert a string with specified encoding to ISO-8859-1.
      *
      * Why do we need this ?
@@ -503,70 +510,6 @@ class CMISAdapter extends AbstractAdapter
     protected function convertToLatin1($string, $encoding = 'UTF-8')
     {
         return iconv($encoding, 'ISO-8859-1//TRANSLIT', $string);
-    }
-
-    /**
-     * Get all metadata from an object at a specific $path.
-     *
-     * @param CmisObjectInterface $object the CMIS object to inspect
-     * @param string              $path   the path to the object
-     *
-     * @return array
-     */
-    protected function getObjectMetadata(CmisObjectInterface $object, $path)
-    {
-        $properties = $object->getProperties();
-        $rawProperties = [];
-
-        foreach ($properties as $property) {
-            $key = $property->getId();
-            $values = $property->getValues();
-
-            if ($property->getDefinition() instanceof
-                PropertyDateTimeDefinition) {
-                $values = array_map(
-                    function (\DateTime $dateTime) {
-                        return $dateTime->format(\DateTime::ATOM);
-                    },
-                    $values
-                ); // convert to string
-            }
-
-            $value = implode(', ', $values);
-            $rawProperties[$key] = $value;
-        }
-
-        return $this->normalizeObject($rawProperties, $path);
-    }
-
-    /**
-     * Normalise a CMIS response.
-     *
-     * @param array  $object the array of CMIS properties of a CMIS object
-     * @param string $path   the path to the CMIS object
-     *
-     * @return array
-     */
-    protected function normalizeObject(array $object, $path)
-    {
-        $result = Util::map($object, static::$resultMap);
-
-        if (array_key_exists('cmis:lastModificationDate', $object)) {
-            $result['timestamp'] = strtotime($object['cmis:lastModificationDate']);
-        }
-
-        $result['type'] = false;
-        if (array_key_exists('cmis:path', $object)) {
-            $result['type'] = 'dir';
-        } elseif (array_key_exists('cmis:baseTypeId', $object)
-            && 'cmis:document' === $object['cmis:baseTypeId']
-        ) {
-            $result['type'] = 'file';
-        }
-
-        $result['path'] = trim($path.'/'.$object['cmis:name'], '/');
-
-        return array_merge($result, $object);
     }
 
     /**
